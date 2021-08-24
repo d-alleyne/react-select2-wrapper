@@ -1,6 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   entry: {
@@ -15,31 +15,41 @@ module.exports = {
     filename: '[name].js',
   },
 
+  devServer: {
+    static: {
+      directory: __dirname
+    }
+  },
+
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
-        loaders: ['react-hot', 'babel'],
+        exclude: /node_mdules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            "presets": ["@babel/preset-env", "@babel/preset-react"],
+            "targets": "defaults"
+          }
+        },
         include: [path.join(__dirname, 'src'), path.join(__dirname, '../src')],
       },
       {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css-loader'),
+        use: [MiniCssExtractPlugin.loader, "css-loader"]
       },
       {
         test: /\.(woff2|woff|svg|ttf|eot)([\?]?.*)$/,
-        loader: 'file-loader?name=[name].[ext]',
+        use: 'file-loader?name=[name].[ext]',
       },
     ],
 
-    noParse: [],
+    // noParse: [],
   },
 
   plugins: [
-    new ExtractTextPlugin('[name].css'),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
+    new MiniCssExtractPlugin(),
     new webpack.ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery',
